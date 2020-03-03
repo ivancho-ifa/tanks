@@ -10,7 +10,7 @@ public class CameraControl : MonoBehaviour
 	[HideInInspector] public Transform[] targets;
 
 
-	private new Camera camera;
+	private Camera camera;
 	private float zoomSpeed;
 	private Vector3 moveVelocity;
 	private Vector3 newPosition;

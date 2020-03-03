@@ -11,7 +11,7 @@ public class TankMovement : MonoBehaviour
 	public AudioClip engineDriving;
 
 
-	private new Rigidbody rigidbody;
+	private Rigidbody rigidbody;
 
 #if UNITY_ANDROID || UNITY_IOS
 	private Vector2 touchStartPosition;
@@ -151,7 +151,7 @@ public class TankMovement : MonoBehaviour
 	private void Move() {
 		// Adjust the position of the tank based on the player's input.
 	
-		float distancePerFrame = this.movementInputValue * this.speed * Time.deltaTime;
+		float distancePerFrame = this.movementInputValue * this.speedPerFrame * Time.deltaTime;
 		Vector3 movement = this.transform.forward * distancePerFrame;
 
 		this.rigidbody.MovePosition(this.rigidbody.position + movement);

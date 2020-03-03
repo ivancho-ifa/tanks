@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
 		this.startWait = new WaitForSeconds(this.startDelay);
 		this.endWait = new WaitForSeconds(this.endDelay);
 
-		this.SpawnAllTanks();
+		// this.SpawnAllTanks();
 		this.SetCameraTargets();
 
 		this.StartCoroutine(this.GameLoop());

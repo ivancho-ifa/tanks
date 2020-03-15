@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraControl : MonoBehaviour
 {
@@ -25,6 +24,8 @@ public class CameraControl : MonoBehaviour
 	private void Awake() => this.camera = this.GetComponentInChildren<Camera>();
 
 
+	/// <remarks>This method is called one more time when a client disconnects and <c>this.targets</c> are all <c>null</c>.</remarks>
+	//	TODO: Find a better way to not call this when a client disconnects. Currently I check for <c>null</c> before usage.
 	private void FixedUpdate() => this.SetPositionAndSize();
 
 
@@ -46,7 +47,7 @@ public class CameraControl : MonoBehaviour
 		int targetsCount = 0;
 
 		foreach (Transform target in this.targets)
-			if (target.gameObject.activeSelf) {
+			if (target && target.gameObject.activeSelf) {
 				averagePosition.x += target.position.x;
 				averagePosition.z += target.position.z;
 
@@ -65,7 +66,7 @@ public class CameraControl : MonoBehaviour
 
 		float size = 0f;
 		foreach (Transform target in this.targets)
-			if (target.gameObject.activeSelf) {
+			if (target && target.gameObject.activeSelf) {
 				Vector3 targetLocalPosition = this.transform.InverseTransformPoint(target.position);
 				Vector3 distanceToTarget = targetLocalPosition - newLocalPosition;
 

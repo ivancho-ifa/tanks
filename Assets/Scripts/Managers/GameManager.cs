@@ -20,34 +20,36 @@ public class GameManager : MonoBehaviour
 	private TankManager roundWinner;
 	private TankManager gameWinner;
 
+
 	private void Start() {
 		this.startWait = new WaitForSeconds(this.startDelay);
 		this.endWait = new WaitForSeconds(this.endDelay);
 
-		// this.SpawnAllTanks();
+		this.SetSpawnedTanks();
+		this.SetupSpawnedTanks();
 		this.SetCameraTargets();
-
 		this.StartCoroutine(this.GameLoop());
 	}
 
 
-	private void SpawnAllTanks() {
-		for (int i = 0; i < this.tanks.Length; i++) {
-			this.tanks[i].instance =
-				Instantiate(this.tankPrefab, this.tanks[i].spawnPoint.position, this.tanks[i].spawnPoint.rotation);
-			this.tanks[i].playerNumber = i + 1;
-			this.tanks[i].Setup();
-		}
+	private void SetSpawnedTanks() {
+		GameObject[] tanks = GameObject.FindGameObjectsWithTag("Player");
+		Debug.Log("Player objects found: " + tanks.Length);
+		this.tanks = new TankManager[tanks.Length];
+		for (int i = 0; i < tanks.Length; ++i)
+			this.tanks[i] = tanks[i].GetComponent<TankManager>();
 	}
 
+	private void SetupSpawnedTanks() {
+		Debug.Log("Tank managers count:  " + this.tanks.Length);
+		foreach (TankManager tank in this.tanks)
+			tank.Setup();
+	}
 
 	private void SetCameraTargets() {
-		var targets = new Transform[this.tanks.Length];
-
-		for (int i = 0; i < targets.Length; i++)
-			targets[i] = this.tanks[i].instance.transform;
-
-		this.cameraControl.targets = targets;
+		this.cameraControl.targets = new Transform[this.tanks.Length];
+		for (int i = 0; i < this.tanks.Length; i++)
+			this.cameraControl.targets[i] = this.tanks[i].gameObject.transform;
 	}
 
 
@@ -81,9 +83,8 @@ public class GameManager : MonoBehaviour
 
 		this.messageText.text = string.Empty;
 
-		while (!this.OneTankLeft()) {
+		while (!this.OneTankLeft())
 			yield return null;
-		}
 	}
 
 
@@ -106,7 +107,7 @@ public class GameManager : MonoBehaviour
 		int numTanksLeft = 0;
 
 		foreach (TankManager tank in this.tanks)
-			if (tank.instance.activeSelf)
+			if (tank.gameObject.activeSelf)
 				numTanksLeft++;
 
 		return numTanksLeft <= 1;
@@ -115,7 +116,7 @@ public class GameManager : MonoBehaviour
 
 	private TankManager GetRoundWinner() {
 		foreach (TankManager tank in this.tanks)
-			if (tank.instance.activeSelf)
+			if (tank.gameObject.activeSelf)
 				return tank;
 
 		return null;

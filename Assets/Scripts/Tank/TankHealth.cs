@@ -1,37 +1,37 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class TankHealth : MonoBehaviour
+public class TankHealth
 {
-	public readonly float startingHealth = 100f;
-	public readonly Color fullHealthColor = Color.green;
-	public readonly Color zeroHealthColor = Color.red;
-
-	public GameObject explosionPrefab;
-	public Image fillImage;
-	public Slider slider;
+	public readonly GameObject tank;
 
 
-	private GameObject explosion;
-	private AudioSource explosionAudio;
-	private ParticleSystem explosionParticles;
-	private float currentHealth;
+	private readonly float startingHealth = 100f;
+	private readonly Color fullHealthColor = Color.green;
+	private readonly Color zeroHealthColor = Color.red;
+
+	private readonly Image fillImage;
+	private readonly Slider slider;
+
+	private Explosion explosion;
+	private float health;
 	private bool dead;
 
 
-	private void Awake() {
-		this.explosion = Instantiate(this.explosionPrefab);
-
-		this.explosionParticles = this.explosion.GetComponent<ParticleSystem>();
-		this.explosionAudio = this.explosion.GetComponent<AudioSource>();
+	public TankHealth(GameObject tank, Image fillImage, Slider slider) {
+		this.tank = tank;
+		this.fillImage = fillImage;
+		this.slider = slider;
 	}
 
+	public void SetupExplosion(GameObject explosionPrefab) => this.explosion.Prefab = explosionPrefab;
 
-	private void OnEnable() {
-		this.currentHealth = this.startingHealth;
+
+	public void OnEnable() {
+		this.health = this.startingHealth;
 		this.dead = false;
 
-		this.explosion.SetActive(false);
+		this.explosion.GameObject.SetActive(false);
 
 		this.SetHealthUI();
 	}
@@ -40,13 +40,13 @@ public class TankHealth : MonoBehaviour
 	public void TakeDamage(float amount) {
 		// Adjust the tank's current health, update the UI based on the new health and check whether or not the tank is dead.
 
-		Debug.Assert(this.currentHealth > 0f);
+		Debug.Assert(this.health > 0f);
 
-		this.currentHealth -= amount;
+		this.health -= amount;
 
 		this.SetHealthUI();
 
-		if (this.currentHealth <= 0f && !this.dead)
+		if (this.health <= 0f && !this.dead)
 			this.OnDeath();
 	}
 
@@ -55,18 +55,18 @@ public class TankHealth : MonoBehaviour
 		// return (this.slider.value - this.slider.minValue) / (this.slider.maxValue - this.slider.minValue);
 
 		Debug.Assert(this.slider.minValue == 0);
-		Debug.Assert((0 <= this.currentHealth && this.slider.value == this.currentHealth) || this.currentHealth < 0);
+		Debug.Assert((0 <= this.health && this.slider.value == this.health) || this.health < 0);
 		Debug.Assert(this.slider.maxValue == this.startingHealth);
 
 		// We know this.slider.minValue is 0. For performance we simplify the arithmetics.
-		return this.currentHealth / this.startingHealth;
+		return this.health / this.startingHealth;
 	}
 
 
 	private void SetHealthUI() {
 		// Adjust the value and colour of the slider.
 
-		this.slider.value = this.currentHealth;
+		this.slider.value = this.health;
 
 		this.fillImage.color = Color.Lerp(this.zeroHealthColor, this.fullHealthColor, this.GetHealthPercentage());
 	}
@@ -76,19 +76,18 @@ public class TankHealth : MonoBehaviour
 		// Play the effects for the death of the tank and deactivate it.
 
 		Debug.Assert(!this.dead);
-		Debug.Assert(!this.explosion.activeSelf);
-		Debug.Assert(!this.explosionParticles.isPlaying);
-		Debug.Assert(!this.explosionAudio.isPlaying);
-		Debug.Assert(this.gameObject.activeSelf);
+		Debug.Assert(!this.explosion.GameObject.activeSelf);
+		Debug.Assert(!this.explosion.Particles.isPlaying);
+		Debug.Assert(!this.explosion.Audio.isPlaying);
+		Debug.Assert(this.tank.activeSelf);
 
 		this.dead = true;
 
-		this.explosionParticles.transform.position = this.transform.position;
-		this.explosion.SetActive(true);
-		this.explosionParticles.Play();
+		this.explosion.Particles.transform.position = this.tank.transform.position;
+		this.explosion.GameObject.SetActive(true);
+		this.explosion.Particles.Play();
+		this.explosion.Audio.Play();
 
-		this.explosionAudio.Play();
-
-		this.gameObject.SetActive(false);
+		this.tank.SetActive(false);
 	}
 }

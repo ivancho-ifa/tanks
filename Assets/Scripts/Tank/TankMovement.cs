@@ -1,47 +1,84 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class TankMovement : MonoBehaviour
+public class TankMovement
 {
+	public class EngineAudio : Audio
+	{
+		public EngineAudio(AudioSource source, params AudioClip[] sounds) : base(source, sounds) {
+			if (sounds.Length != 2)
+				throw new ArgumentException("EngineAudio requires 2 sounds!");
+		}
+
+		public enum SoundID
+		{
+			Idling,
+			Driving
+		}
+
+		public void ChangeCurrentSound(SoundID soundID) {
+			this.ChangeCurrentSound((int)soundID);
+			this.PlayCurrentSound();
+		}
+
+		public bool IsCurrentSound(SoundID engineSoundID) => this.IsCurrentSound((int)engineSoundID);
+	}
+
+
 	public readonly float speedPerFrame = 12f;
 
-	public int playerNumber = 1;
+	public uint playerNumber = 1;
 
-	public AudioSource movementAudio;
-	public AudioClip engineIdling;
-	public AudioClip engineDriving;
+	private readonly EngineAudio engineAudio;
 
-
+	private readonly GameObject tank;
 	private Rigidbody rigidbody;
 
 #if UNITY_ANDROID || UNITY_IOS
 	private Vector2 touchStartPosition;
 	private Vector2 movementDirection;
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-	public readonly float maxSpeed = 1f;
-	public readonly float turnSpeed = 180f;
+	private struct Input
+	{
+		public Input(string axisName, float maxValue) {
+			this.axisName = axisName;
+			this.value = 0f;
+			this.maxValue = maxValue;
+		}
 
-	private string movementAxisName;
-	private string turnAxisName;
+		public readonly string axisName;
+		public readonly float maxValue;
+		public float value;
+	}
 
-	private float movementInputValue;
-	private float turnInputValue;
+
+	private Input movementInput;
+	private Input turnInput;
 #endif
 
 
-	private void Awake() => this.rigidbody = this.GetComponent<Rigidbody>();
+	public TankMovement(GameObject tank, EngineAudio engineAudio) {
+		this.tank = tank;
+		this.engineAudio = engineAudio;
+
+		this.movementInput = new Input("Vertical" + this.playerNumber, 1f);
+		this.turnInput = new Input("Horizontal" + this.playerNumber, 180f);
+	}
+
+	public void Awake() => this.rigidbody = this.tank.GetComponent<Rigidbody>();
 
 
-	private void OnEnable() {
+	public void OnEnable() {
 		this.rigidbody.isKinematic = false;
 		
 		this.ResetInput();
 	}
 
 
-	private void OnDisable() => this.rigidbody.isKinematic = true;
+	public void OnDisable() => this.rigidbody.isKinematic = true;
 
 
-	private void Update() {
+	public void Update() {
 		// Store the player's input and make sure the audio for the engine is playing.
 
 		this.GetInput();
@@ -53,16 +90,14 @@ public class TankMovement : MonoBehaviour
 		// Play the correct audio clip based on whether or not the tank is moving and what audio is currently playing.
 
 		if (this.IsMoving()) {
-			if (this.movementAudio.clip == this.engineIdling) {
-				this.movementAudio.clip = this.engineDriving;
-				this.movementAudio.Play();
-			}
+			if (this.engineAudio.IsCurrentSound(EngineAudio.SoundID.Idling))
+				this.engineAudio.ChangeCurrentSound(EngineAudio.SoundID.Driving);
 		}
 		else {
-			if (this.movementAudio.clip == this.engineDriving) {
-				this.movementAudio.clip = this.engineIdling;
-				this.movementAudio.Play();
-			}
+			Debug.Assert(!this.IsMoving());
+
+			if (this.engineAudio.IsCurrentSound(EngineAudio.SoundID.Driving))
+				this.engineAudio.ChangeCurrentSound(EngineAudio.SoundID.Idling);
 		}
 	}
 
@@ -124,51 +159,47 @@ public class TankMovement : MonoBehaviour
 	private bool IsMoving() => this.movementDirection.magnitude > 0f;
 
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-	private void Start() {
-		this.movementAxisName = "Vertical" + this.playerNumber;
-		this.turnAxisName = "Horizontal" + this.playerNumber;
-	}
 
-
-	private void FixedUpdate() {
+	public void FixedUpdate() {
 		this.Move();
 		this.Turn();
 	}
 
 
 	private void ResetInput() {
-		this.movementInputValue = 0f;
-		this.turnInputValue = 0f;
+		this.movementInput.value = 0f;
+		this.turnInput.value = 0f;
 	}
 
 
 	private void GetInput() {
-		this.movementInputValue = Input.GetAxis(this.movementAxisName);
-		this.turnInputValue = Input.GetAxis(this.turnAxisName);
+		this.movementInput.value = UnityEngine.Input.GetAxis(this.movementInput.axisName);
+		this.turnInput.value = UnityEngine.Input.GetAxis(this.turnInput.axisName);
 	}
 
 
 	private void Move() {
 		// Adjust the position of the tank based on the player's input.
-	
-		float distancePerFrame = this.movementInputValue * this.speedPerFrame * Time.deltaTime;
-		Vector3 movement = this.transform.forward * distancePerFrame;
 
-		this.rigidbody.MovePosition(this.rigidbody.position + movement);
+		float speed = Mathf.Min(this.movementInput.value, this.movementInput.maxValue);
+		float distancePerFrame = speed * this.speedPerFrame * Time.deltaTime;
+		Vector3 movementPerFrame = this.tank.transform.forward * distancePerFrame;
+
+		this.rigidbody.MovePosition(this.rigidbody.position + movementPerFrame);
 	}
 
 
 	private void Turn() {
 		// Adjust the rotation of the tank based on the player's input.
 	
-		float rotationPerFrame = this.turnInputValue * this.turnSpeed * Time.deltaTime;
+		float rotationPerFrame = this.turnInput.value * this.turnInput.maxValue * Time.deltaTime;
 		var turn = Quaternion.Euler(0f, rotationPerFrame, 0f);
 
 		this.rigidbody.MoveRotation(this.rigidbody.rotation * turn);
 	}
 
 
-	private bool IsMoving() => Mathf.Abs(this.movementInputValue) > .1f || Mathf.Abs(this.turnInputValue) > .1f;
+	private bool IsMoving() => Mathf.Abs(this.movementInput.value) > .1f || Mathf.Abs(this.turnInput.value) > .1f;
 
 #endif
 }

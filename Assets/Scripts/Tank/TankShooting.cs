@@ -1,40 +1,71 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class TankShooting : MonoBehaviour
+public class TankShooting
 {
-	public int playerNumber = 1;
+	public class ShootingAudio : Audio
+	{
+		public ShootingAudio
+			(AudioSource source, params AudioClip[] sounds) : base(source, sounds) {
+			if (sounds.Length != 2)
+				throw new ArgumentException("ShootingAudio requires 2 sounds!");
+		}
+
+		public enum SoundID
+		{
+			Charging,
+			Fire
+		}
+
+		public void ChangeCurrentSound(SoundID soundID) {
+			this.ChangeCurrentSound((int)soundID);
+			this.PlayCurrentSound();
+		}
+
+		public bool IsCurrentSound(SoundID soundID) => this.IsCurrentSound((int)soundID);
+	}
+
+
+	public uint playerNumber = 1;
 	public Rigidbody shell;
 	public Transform fireTransform;
 	public Slider aimSlider;
-	public AudioSource shootingAudio;
-	public AudioClip chargingClip;
-	public AudioClip fireClip;
 	public float minLaunchForce = 15f;
 	public float maxLaunchForce = 30f;
 	public float maxChargeTime = 0.75f;
 
 
+	private readonly GameObject tank;
+	private readonly ShootingAudio shootingAudio;
 	private string fireButton;
 	private float currentLaunchForce;
 	private float chargeSpeed;
 	private bool fired;
 
 
-	private void Start() {
+	public TankShooting(GameObject tank, ShootingAudio shootingAudio, Slider aimSlider, Rigidbody shell, Transform shellSpawnPoint) {
+		this.tank = tank;
+		this.shootingAudio = shootingAudio;
+		this.aimSlider = aimSlider;
+		this.shell = shell;
+		this.fireTransform = shellSpawnPoint;
+	}
+
+	public void Start() {
 		this.fireButton = "Fire" + this.playerNumber;
 
 		this.chargeSpeed = (this.maxLaunchForce - this.minLaunchForce) / this.maxChargeTime;
 	}
 
 
-	private void OnEnable() {
+	public void OnEnable() {
 		this.currentLaunchForce = this.minLaunchForce;
 		this.aimSlider.value = this.minLaunchForce;
 	}
 
 
-	private void Update() {
+	public void Update() {
 		// Track the current state of the fire button and make decisions based on the current launch force.
 
 		this.aimSlider.value = this.minLaunchForce;
@@ -47,8 +78,7 @@ public class TankShooting : MonoBehaviour
 			this.fired = false;
 			this.currentLaunchForce = this.minLaunchForce;
 
-			this.shootingAudio.clip = this.chargingClip;
-			this.shootingAudio.Play();
+			this.shootingAudio.ChangeCurrentSound(ShootingAudio.SoundID.Charging);
 		}
 		else if (this.InputChargingShot() && !this.fired) {
 			this.currentLaunchForce += this.chargeSpeed * Time.deltaTime;
@@ -65,11 +95,10 @@ public class TankShooting : MonoBehaviour
 
 		this.fired = true;
 
-		Rigidbody shellInstance = Instantiate(this.shell, this.fireTransform.position, this.fireTransform.rotation);
+		Rigidbody shellInstance = UnityEngine.Object.Instantiate(this.shell, this.fireTransform.position, this.fireTransform.rotation);
 		shellInstance.velocity = this.currentLaunchForce * this.fireTransform.forward;
 
-		this.shootingAudio.clip = this.fireClip;
-		this.shootingAudio.Play();
+		this.shootingAudio.ChangeCurrentSound(ShootingAudio.SoundID.Fire);
 
 		this.currentLaunchForce = this.minLaunchForce;
 	}
@@ -110,19 +139,11 @@ public class TankShooting : MonoBehaviour
 		return null;
 	}
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-	private bool InputBeginShot() {
-		return Input.GetButtonDown(this.fireButton);
-	}
+	private bool InputBeginShot() => Input.GetButtonDown(this.fireButton);
 
+	private bool InputChargingShot() => Input.GetButton(this.fireButton);
 
-	private bool InputChargingShot() {
-		return Input.GetButton(this.fireButton);
-	}
-
-
-	private bool InputEndShot() {
-		return Input.GetButtonUp(this.fireButton);
-	}
+	private bool InputEndShot() => Input.GetButtonUp(this.fireButton);
 #endif
 
 }

@@ -42,12 +42,12 @@ public class ShellExplosion : MonoBehaviour
 		Collider[] colliders = Physics.OverlapSphere(this.transform.position, this.explosionRadius, this.tankMask);
 		foreach (Collider collider in colliders) {
 			Rigidbody targetRigidbody = collider.GetComponent<Rigidbody>();
-			TankHealth targetHealth = targetRigidbody.GetComponent<TankHealth>();
+			TankHealth targetHealth = targetRigidbody.GetComponent<TankManager>().health;
 
-			if (targetRigidbody && targetHealth) {
+			if (targetRigidbody != null && targetHealth != null) {
 				targetRigidbody.AddExplosionForce(this.explosionForce, this.transform.position, this.explosionRadius);
 
-				float damage = this.CalculateDamage(targetHealth.transform.position);
+				float damage = this.CalculateDamage(targetHealth.tank.transform.position);
 				targetHealth.TakeDamage(damage);
 			}
 		}

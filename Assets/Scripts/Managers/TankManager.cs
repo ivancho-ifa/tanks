@@ -71,8 +71,10 @@ public class TankManager : NetworkBehaviour
 
 
 	public void Update() {
-		this.movement.Update();
-		this.shooting.Update();
+		if (this.isLocalPlayer) {
+			this.movement.Update();
+			this.shooting.Update();
+		}
 	}
 
 

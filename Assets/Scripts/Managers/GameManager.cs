@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -56,7 +57,7 @@ public class GameManager : MonoBehaviour
 	private IEnumerator GameLoop() {
 		yield return this.StartCoroutine(this.RoundStarting());
 		yield return this.StartCoroutine(this.RoundPlaying());
-		yield return this.StartCoroutine(this.RoundEnding());
+		//yield return this.StartCoroutine(this.RoundEnding());
 
 		if (this.gameWinner != null)
 			SceneManager.LoadScene(0);
@@ -83,7 +84,8 @@ public class GameManager : MonoBehaviour
 
 		this.messageText.text = string.Empty;
 
-		while (!this.OneTankLeft())
+		//while (!this.OneTankLeft())
+		while (true)
 			yield return null;
 	}
 

@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -22,6 +21,15 @@ public class GameManager : MonoBehaviour
 	private TankManager gameWinner;
 
 
+	// NOTE: This is here because on Start() not every player is ready.
+	// TODO: There HAS to be a better solution to get all the tanks.
+	private void FixedUpdate() {
+		this.SetSpawnedTanks();
+		this.SetupSpawnedTanks();
+		this.SetCameraTargets();
+	}
+
+
 	private void Start() {
 		this.startWait = new WaitForSeconds(this.startDelay);
 		this.endWait = new WaitForSeconds(this.endDelay);
@@ -29,6 +37,7 @@ public class GameManager : MonoBehaviour
 		this.SetSpawnedTanks();
 		this.SetupSpawnedTanks();
 		this.SetCameraTargets();
+
 		this.StartCoroutine(this.GameLoop());
 	}
 

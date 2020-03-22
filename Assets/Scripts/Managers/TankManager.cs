@@ -79,11 +79,6 @@ public class TankManager : NetworkBehaviour
 
 
 	public void Setup() {
-		//this.health = new TankHealth(this.gameObject, this.fillImage, this.slider);
-		//this.movement = new TankMovement(this.gameObject, new TankMovement.EngineAudio(this.engineAudio, this.engineIdling, this.engineDriving));
-		//this.shooting = new TankShooting(this.gameObject, new TankShooting.ShootingAudio(this.shootingAudio, this.chargingClip, this.fireClip));
-		//this.canvasGameObject = this.gameObject.GetComponentInChildren<Canvas>().gameObject;
-
 		this.movement.playerNumber = this.playerNumber;
 		this.shooting.playerNumber = this.playerNumber;
 

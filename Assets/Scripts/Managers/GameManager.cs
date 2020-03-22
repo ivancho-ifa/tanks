@@ -44,14 +44,12 @@ public class GameManager : MonoBehaviour
 
 	private void SetSpawnedTanks() {
 		GameObject[] tanks = GameObject.FindGameObjectsWithTag("Player");
-		Debug.Log("Player objects found: " + tanks.Length);
 		this.tanks = new TankManager[tanks.Length];
 		for (int i = 0; i < tanks.Length; ++i)
 			this.tanks[i] = tanks[i].GetComponent<TankManager>();
 	}
 
 	private void SetupSpawnedTanks() {
-		Debug.Log("Tank managers count:  " + this.tanks.Length);
 		foreach (TankManager tank in this.tanks)
 			tank.Setup();
 	}
@@ -66,7 +64,7 @@ public class GameManager : MonoBehaviour
 	private IEnumerator GameLoop() {
 		yield return this.StartCoroutine(this.RoundStarting());
 		yield return this.StartCoroutine(this.RoundPlaying());
-		//yield return this.StartCoroutine(this.RoundEnding());
+		yield return this.StartCoroutine(this.RoundEnding());
 
 		if (this.gameWinner != null)
 			SceneManager.LoadScene(0);
@@ -93,8 +91,7 @@ public class GameManager : MonoBehaviour
 
 		this.messageText.text = string.Empty;
 
-		//while (!this.OneTankLeft())
-		while (true)
+		while (!this.OneTankLeft())
 			yield return null;
 	}
 
@@ -168,12 +165,12 @@ public class GameManager : MonoBehaviour
 
 	private void EnableTankControl() {
 		foreach (TankManager tank in this.tanks)
-			tank.EnableControl();
+			tank.ActiveControl(true);
 	}
 
 
 	private void DisableTankControl() {
 		foreach (TankManager tank in this.tanks)
-			tank.DisableControl();
+			tank.ActiveControl(false);
 	}
 }

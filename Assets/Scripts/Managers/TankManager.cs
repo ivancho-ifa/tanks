@@ -10,12 +10,6 @@ public class TankManager : NetworkBehaviour
 	[HideInInspector] public string coloredPlayerText;
 	[HideInInspector] public int wins;
 
-
-	[Header("Tank Health")]
-	public GameObject explosionPrefab;
-	public Image fillImage;
-	public Slider slider;
-
 	[Header("Tank Movement")]
 	public AudioSource engineAudio;
 	public AudioClip engineIdling;
@@ -34,16 +28,13 @@ public class TankManager : NetworkBehaviour
 
 	private TankMovement movement;
 	private TankShooting shooting;
-	public TankHealth health;
 
 
 	public void Awake() {
-		this.health = new TankHealth(this.gameObject, this.fillImage, this.slider);
 		this.movement = new TankMovement(this.gameObject, new TankMovement.EngineAudio(this.engineAudio, this.engineIdling, this.engineDriving));
 		this.shooting = new TankShooting(this.gameObject, new TankShooting.ShootingAudio(this.shootingAudio, this.chargingClip, this.fireClip), this.aimSlider, this.shell, this.fireTransform);
 		this.canvasGameObject = this.gameObject.GetComponentInChildren<Canvas>().gameObject;
-
-		this.health.SetupExplosion(this.explosionPrefab);
+		
 		this.movement.Awake();
 	}
 
@@ -55,7 +46,6 @@ public class TankManager : NetworkBehaviour
 
 
 	public void OnEnable() {
-		this.health.OnEnable();
 		this.movement.OnEnable();
 		this.shooting.OnEnable();
 	}
@@ -92,16 +82,9 @@ public class TankManager : NetworkBehaviour
 	}
 
 
-	public void DisableControl() {
-		this.enabled = false;
+	public void ActiveControl(bool enabled) {
+		this.enabled = enabled;
 
-		this.canvasGameObject.SetActive(false);
-	}
-
-
-	public void EnableControl() {
-		this.enabled = true;
-
-		this.canvasGameObject.SetActive(true);
+		this.canvasGameObject.SetActive(enabled);
 	}
 }

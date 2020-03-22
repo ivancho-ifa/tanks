@@ -1,53 +1,53 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class TankHealth
+public class TankHealth : NetworkBehaviour
 {
-	public readonly GameObject tank;
-
-
 	private readonly float startingHealth = 100f;
 	private readonly Color fullHealthColor = Color.green;
 	private readonly Color zeroHealthColor = Color.red;
 
-	private readonly Image fillImage;
-	private readonly Slider slider;
+	public Image fillImage;
+	public Slider slider;
 
-	private Explosion explosion;
-	private float health;
+	public Explosion explosion;
+
+	[SyncVar] private float health;
 	private bool dead;
 
 
-	public TankHealth(GameObject tank, Image fillImage, Slider slider) {
-		this.tank = tank;
-		this.fillImage = fillImage;
-		this.slider = slider;
-	}
-
-	public void SetupExplosion(GameObject explosionPrefab) => this.explosion.Prefab = explosionPrefab;
+	public void Awake() => this.explosion.Instantiate();
 
 
 	public void OnEnable() {
 		this.health = this.startingHealth;
 		this.dead = false;
 
-		this.explosion.GameObject.SetActive(false);
+		this.explosion.StopExploding();
 
 		this.SetHealthUI();
 	}
+
+
+	public void Update() => this.SetHealthUI();
 
 
 	public void TakeDamage(float amount) {
 		// Adjust the tank's current health, update the UI based on the new health and check whether or not the tank is dead.
 
 		Debug.Assert(this.health > 0f);
+		
+		// Forbid clients managing their own health.
+		if (this.isServer)
+			this.health -= amount;
+		
+		if (this.isClient)
+			if (this.health <= 0f && !this.dead)
+				this.CmdOnDeath();
 
-		this.health -= amount;
-
-		this.SetHealthUI();
-
-		if (this.health <= 0f && !this.dead)
-			this.OnDeath();
+		// TODO: May be SetHealthUI could be called here when it is actually changed instead of on every Update.
+		// NOTE: I tried a Command and then RPC call for SetHealthUI. It was actually working but was updating the UI before health was synced and was displaying the old value of health.
 	}
 
 
@@ -75,19 +75,23 @@ public class TankHealth
 	private void OnDeath() {
 		// Play the effects for the death of the tank and deactivate it.
 
+		Debug.Log("Calling OnDeath");
+
 		Debug.Assert(!this.dead);
-		Debug.Assert(!this.explosion.GameObject.activeSelf);
-		Debug.Assert(!this.explosion.Particles.isPlaying);
-		Debug.Assert(!this.explosion.Audio.isPlaying);
-		Debug.Assert(this.tank.activeSelf);
+		Debug.Assert(!this.explosion.IsExploding());
+		Debug.Assert(this.gameObject.activeSelf);
 
 		this.dead = true;
 
-		this.explosion.Particles.transform.position = this.tank.transform.position;
-		this.explosion.GameObject.SetActive(true);
-		this.explosion.Particles.Play();
-		this.explosion.Audio.Play();
-
-		this.tank.SetActive(false);
+		this.explosion.ExplodeAt(this.transform.position);
+		this.gameObject.SetActive(false);
 	}
+
+
+	[Command]
+	void CmdOnDeath() => this.RpcOnDeath();
+
+
+	[ClientRpc]
+	void RpcOnDeath() => this.OnDeath();
 }

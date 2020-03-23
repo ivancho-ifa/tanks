@@ -35,11 +35,11 @@ public class TankHealth : NetworkBehaviour
 		// Adjust the tank's current health, update the UI based on the new health and check whether or not the tank is dead.
 
 		Debug.Assert(this.health > 0f);
-		
+
 		// Forbid clients managing their own health.
 		if (this.isServer)
 			this.health -= amount;
-		
+
 		if (this.isClient)
 			if (this.health <= 0f && !this.dead)
 				this.CmdOnDeath();

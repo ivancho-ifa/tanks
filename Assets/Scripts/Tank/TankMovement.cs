@@ -1,48 +1,30 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
-public class TankMovement
+public class TankMovement : NetworkBehaviour
 {
 	public readonly float speedPerFrame = 12f;
 
 	public uint playerNumber = 1;
-
-	private readonly EngineAudio engineAudio;
-
-	private readonly GameObject tank;
+	public EngineAudio engineAudio;
+	
 	private Rigidbody rigidbody;
 
 #if UNITY_ANDROID || UNITY_IOS
 	private Vector2 touchStartPosition;
 	private Vector2 movementDirection;
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-	private struct Input
-	{
-		public Input(string axisName, float maxValue) {
-			this.axisName = axisName;
-			this.value = 0f;
-			this.maxValue = maxValue;
-		}
-
-		public readonly string axisName;
-		public readonly float maxValue;
-		public float value;
-	}
-
-
 	private Input movementInput;
 	private Input turnInput;
 #endif
 
 
-	public TankMovement(GameObject tank, EngineAudio engineAudio) {
-		this.tank = tank;
-		this.engineAudio = engineAudio;
+	public void Awake() {
+		this.rigidbody = this.GetComponent<Rigidbody>();
 
 		this.movementInput = new Input("Vertical" + this.playerNumber, 1f);
 		this.turnInput = new Input("Horizontal" + this.playerNumber, 180f);
 	}
-
-	public void Awake() => this.rigidbody = this.tank.GetComponent<Rigidbody>();
 
 
 	public void OnEnable() {
@@ -58,8 +40,10 @@ public class TankMovement
 	public void Update() {
 		// Store the player's input and make sure the audio for the engine is playing.
 
-		this.GetInput();
-		this.UpdateEngineAudio();
+		if (this.isLocalPlayer) {
+			this.GetInput();
+			this.UpdateEngineAudio();
+		}
 	}
 
 
@@ -67,14 +51,14 @@ public class TankMovement
 		// Play the correct audio clip based on whether or not the tank is moving and what audio is currently playing.
 
 		if (this.IsMoving()) {
-			if (this.engineAudio.IsCurrentSound(EngineAudio.SoundID.Idling))
-				this.engineAudio.ChangeCurrentSound(EngineAudio.SoundID.Driving);
+			if (this.engineAudio.IsCurrentSound(this.engineAudio.engineIdling))
+				this.engineAudio.ChangeCurrentSound(this.engineAudio.engineDriving);
 		}
 		else {
 			Debug.Assert(!this.IsMoving());
 
-			if (this.engineAudio.IsCurrentSound(EngineAudio.SoundID.Driving))
-				this.engineAudio.ChangeCurrentSound(EngineAudio.SoundID.Idling);
+			if (this.engineAudio.IsCurrentSound(this.engineAudio.engineDriving))
+				this.engineAudio.ChangeCurrentSound(this.engineAudio.engineIdling);
 		}
 	}
 
@@ -134,9 +118,7 @@ public class TankMovement
 
 
 	private bool IsMoving() => this.movementDirection.magnitude > 0f;
-
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-
 	public void FixedUpdate() {
 		this.Move();
 		this.Turn();
@@ -160,7 +142,7 @@ public class TankMovement
 
 		float speed = Mathf.Min(this.movementInput.value, this.movementInput.maxValue);
 		float distancePerFrame = speed * this.speedPerFrame * Time.deltaTime;
-		Vector3 movementPerFrame = this.tank.transform.forward * distancePerFrame;
+		Vector3 movementPerFrame = this.gameObject.transform.forward * distancePerFrame;
 
 		this.rigidbody.MovePosition(this.rigidbody.position + movementPerFrame);
 	}
@@ -177,6 +159,5 @@ public class TankMovement
 
 
 	private bool IsMoving() => Mathf.Abs(this.movementInput.value) > .1f || Mathf.Abs(this.turnInput.value) > .1f;
-
 #endif
 }

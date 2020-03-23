@@ -10,19 +10,6 @@ public class TankManager : NetworkBehaviour
 	[HideInInspector] public string coloredPlayerText;
 	[HideInInspector] public int wins;
 
-	[Header("Tank Movement")]
-	public AudioSource engineAudio;
-	public AudioClip engineIdling;
-	public AudioClip engineDriving;
-
-	[Header("Tank Shooting")]
-	public Rigidbody shell;
-	public Transform fireTransform;
-	public Slider aimSlider;
-	public AudioSource shootingAudio;
-	public AudioClip chargingClip;
-	public AudioClip fireClip;
-
 
 	private GameObject canvasGameObject;
 
@@ -31,40 +18,17 @@ public class TankManager : NetworkBehaviour
 
 
 	public void Awake() {
-		this.movement = new TankMovement(this.gameObject, new TankMovement.EngineAudio(this.engineAudio, this.engineIdling, this.engineDriving));
-		this.shooting = new TankShooting(this.gameObject, new TankShooting.ShootingAudio(this.shootingAudio, this.chargingClip, this.fireClip), this.aimSlider, this.shell, this.fireTransform);
+		this.shooting = this.GetComponent<TankShooting>();
 		this.canvasGameObject = this.gameObject.GetComponentInChildren<Canvas>().gameObject;
 		
+		this.movement = this.GetComponent<TankMovement>();
 		this.movement.Awake();
-	}
-
-
-	public void FixedUpdate() => this.movement.FixedUpdate();
-
-
-	public void OnDisable() => this.movement.OnDisable();
-
-
-	public void OnEnable() {
-		this.movement.OnEnable();
-		this.shooting.OnEnable();
 	}
 
 
 	public void Reset() {
 		this.gameObject.SetActive(false);
 		this.gameObject.SetActive(true);
-	}
-
-
-	public void Start() => this.shooting.Start();
-
-
-	public void Update() {
-		if (this.isLocalPlayer) {
-			this.movement.Update();
-			this.shooting.Update();
-		}
 	}
 
 

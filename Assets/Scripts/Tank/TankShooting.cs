@@ -1,32 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class TankShooting
 {
-	public class ShootingAudio : Audio
-	{
-		public ShootingAudio
-			(AudioSource source, params AudioClip[] sounds) : base(source, sounds) {
-			if (sounds.Length != 2)
-				throw new ArgumentException("ShootingAudio requires 2 sounds!");
-		}
-
-		public enum SoundID
-		{
-			Charging,
-			Fire
-		}
-
-		public void ChangeCurrentSound(SoundID soundID) {
-			this.ChangeCurrentSound((int)soundID);
-			this.PlayCurrentSound();
-		}
-
-		public bool IsCurrentSound(SoundID soundID) => this.IsCurrentSound((int)soundID);
-	}
-
-
 	public uint playerNumber = 1;
 	public Rigidbody shell;
 	public Transform fireTransform;

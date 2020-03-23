@@ -1,30 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TankMovement
 {
-	public class EngineAudio : Audio
-	{
-		public EngineAudio(AudioSource source, params AudioClip[] sounds) : base(source, sounds) {
-			if (sounds.Length != 2)
-				throw new ArgumentException("EngineAudio requires 2 sounds!");
-		}
-
-		public enum SoundID
-		{
-			Idling,
-			Driving
-		}
-
-		public void ChangeCurrentSound(SoundID soundID) {
-			this.ChangeCurrentSound((int)soundID);
-			this.PlayCurrentSound();
-		}
-
-		public bool IsCurrentSound(SoundID engineSoundID) => this.IsCurrentSound((int)engineSoundID);
-	}
-
-
 	public readonly float speedPerFrame = 12f;
 
 	public uint playerNumber = 1;

@@ -41,7 +41,7 @@ public class TankShooting : NetworkBehaviour
 
 			if (this.currentLaunchForce >= this.maxLaunchForce && !this.fired) {
 				this.currentLaunchForce = this.maxLaunchForce;
-				this.Fire();
+				this.CmdFire();
 			}
 			else if (this.InputBeginShot()) {
 				this.fired = false;
@@ -54,7 +54,7 @@ public class TankShooting : NetworkBehaviour
 				this.aimSlider.value = this.currentLaunchForce;
 			}
 			else if (this.InputEndShot() && !this.fired) {
-				this.Fire();
+				this.CmdFire();
 			}
 		}
 	}
@@ -65,13 +65,21 @@ public class TankShooting : NetworkBehaviour
 
 		this.fired = true;
 
-		Rigidbody shellInstance = UnityEngine.Object.Instantiate(this.shell, this.fireTransform.position, this.fireTransform.rotation);
+		Rigidbody shellInstance = Instantiate(this.shell, this.fireTransform.position, this.fireTransform.rotation);
 		shellInstance.velocity = this.currentLaunchForce * this.fireTransform.forward;
 
 		this.shootingAudio.ChangeCurrentSound(this.shootingAudio.shotFiring);
 
 		this.currentLaunchForce = this.minLaunchForce;
 	}
+
+
+	[Command]
+	private void CmdFire() => this.RpcFire();
+
+
+	[ClientRpc]
+	private void RpcFire() => Fire();
 
 
 #if UNITY_ANDROID || UNITY_IOS

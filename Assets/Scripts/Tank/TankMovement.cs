@@ -9,7 +9,6 @@ public class TankMovement : NetworkBehaviour
 	public EngineAudio engineAudio;
 	
 	private Rigidbody rigidbody;
-
 #if UNITY_ANDROID || UNITY_IOS
 	private Vector2 touchStartPosition;
 	private Vector2 movementDirection;

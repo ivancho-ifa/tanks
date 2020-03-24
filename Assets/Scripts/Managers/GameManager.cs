@@ -42,12 +42,8 @@ public class GameManager : MonoBehaviour
 	}
 
 
-	private void SetSpawnedTanks() {
-		GameObject[] tanks = GameObject.FindGameObjectsWithTag("Player");
-		this.tanks = new TankManager[tanks.Length];
-		for (int i = 0; i < tanks.Length; ++i)
-			this.tanks[i] = tanks[i].GetComponent<TankManager>();
-	}
+	private void SetSpawnedTanks() => this.tanks = FindObjectsOfType<TankManager>();
+
 
 	private void SetupSpawnedTanks() {
 		foreach (TankManager tank in this.tanks)

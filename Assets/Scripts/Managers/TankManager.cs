@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UI;
 
 public class TankManager : NetworkBehaviour
 {
@@ -24,6 +23,9 @@ public class TankManager : NetworkBehaviour
 		this.movement = this.GetComponent<TankMovement>();
 		this.movement.Awake();
 	}
+
+
+	public override void OnStartLocalPlayer() => this.tag = "Player";
 
 
 	public void Reset() {

@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
 	public int numRoundsToWin = 5;
 	public float startDelay = 3f;
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour
 		foreach (TankManager tank in this.tanks)
 			tank.Setup();
 	}
+
 
 	private void SetCameraTargets() {
 		this.cameraControl.targets = new Transform[this.tanks.Length];
@@ -153,9 +155,17 @@ public class GameManager : MonoBehaviour
 		return message;
 	}
 
+
 	private void ResetAllTanks() {
-		foreach (TankManager tank in this.tanks)
-			tank.Reset();
+		Debug.Log("ResetAllTanks");
+
+		GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+		for (int i = 0; i < rootObjects.Length; ++i) {
+			TankManager tank = rootObjects[i].GetComponent<TankManager>();
+			if (tank != null) {
+				tank.Reset();
+			}
+		}
 	}
 
 

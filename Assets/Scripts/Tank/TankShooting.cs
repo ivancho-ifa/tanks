@@ -20,17 +20,16 @@ public class TankShooting : NetworkBehaviour
 	private bool fired;
 
 
-	public void Start() {
-		this.fireButton = "Fire" + this.playerNumber;
-
-		this.chargeSpeed = (this.maxLaunchForce - this.minLaunchForce) / this.maxChargeTime;
-	}
+	public void Start() => this.chargeSpeed = (this.maxLaunchForce - this.minLaunchForce) / this.maxChargeTime;
 
 
 	public void OnEnable() {
 		this.currentLaunchForce = this.minLaunchForce;
 		this.aimSlider.value = this.minLaunchForce;
 	}
+
+
+	public override void OnStartLocalPlayer() => this.fireButton = "Fire" + this.playerNumber;
 
 
 	public void Update() {
@@ -79,7 +78,7 @@ public class TankShooting : NetworkBehaviour
 
 
 	[ClientRpc]
-	private void RpcFire() => Fire();
+	private void RpcFire() => this.Fire();
 
 
 #if UNITY_ANDROID || UNITY_IOS

@@ -34,7 +34,7 @@ public class TankHealth : NetworkBehaviour
 	public void TakeDamage(float amount) {
 		// Adjust the tank's current health, update the UI based on the new health and check whether or not the tank is dead.
 
-		Debug.Assert(this.health > 0f);
+		Debug.Assert(this.health > 0f, "Taking damage when this.health = " + this.health);
 
 		// Forbid clients managing their own health.
 		if (this.isServer)

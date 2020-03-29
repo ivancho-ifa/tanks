@@ -36,7 +36,7 @@ public class ShellExplosion : MonoBehaviour
 	}
 
 
-	private void OnTriggerEnter(Collider other) {
+	private void OnTriggerEnter(Collider _) {
 		// Find all the tanks in an area around the shell and damage them.
 
 		Collider[] colliders = Physics.OverlapSphere(this.transform.position, this.explosionRadius, this.tankMask);

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
@@ -157,14 +158,30 @@ public class GameManager : NetworkBehaviour
 
 
 	private void ResetAllTanks() {
-		Debug.Log("ResetAllTanks");
+		IEnumerator spawnPoints = this.GetAllSpawnPoints();
+		foreach (TankManager tank in this.GetAllTanks()) {
+			spawnPoints.MoveNext();
+			var spawnPoint = spawnPoints.Current as Transform;
+			tank.transform.position = spawnPoint.position;
 
+			tank.Reset();
+		}
+	}
+
+
+	private IEnumerator GetAllSpawnPoints() {
+		List<Transform> spawnPoints = NetworkManager.singleton.startPositions;
+		foreach (Transform spawnPoint in spawnPoints)
+			yield return spawnPoint;
+	}
+
+
+	private IEnumerable GetAllTanks() {
 		GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-		for (int i = 0; i < rootObjects.Length; ++i) {
-			TankManager tank = rootObjects[i].GetComponent<TankManager>();
-			if (tank != null) {
-				tank.Reset();
-			}
+		foreach (GameObject rootObject in rootObjects) {
+			TankManager tank = rootObject.GetComponent<TankManager>();
+			if (tank != null)
+				yield return tank;
 		}
 	}
 

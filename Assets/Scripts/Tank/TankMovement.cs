@@ -21,8 +21,10 @@ public class TankMovement : NetworkBehaviour
 	public void Awake() {
 		this.rigidbody = this.GetComponent<Rigidbody>();
 
+#if UNITY_WEBPLAYER || UNITY_STANDALONE
 		this.movementInput = new Input("Vertical" + this.playerNumber, 1f);
 		this.turnInput = new Input("Horizontal" + this.playerNumber, 180f);
+#endif
 	}
 
 
@@ -105,8 +107,8 @@ public class TankMovement : NetworkBehaviour
 
 
 	private Touch? GetTouch() {
-		for (int i = 0; i < Input.touchCount; ++i) {
-			Touch touch = Input.GetTouch(i);
+		for (int i = 0; i < UnityEngine.Input.touchCount; ++i) {
+			Touch touch = UnityEngine.Input.GetTouch(i);
 
 			if (touch.position.x < Screen.width / 2)
 				return touch;

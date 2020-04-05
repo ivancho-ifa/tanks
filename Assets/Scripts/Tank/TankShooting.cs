@@ -14,10 +14,12 @@ public class TankShooting : NetworkBehaviour
 	public Slider aimSlider;
 	public ShootingAudio shootingAudio;
 
-	private string fireButton;
 	private float currentLaunchForce;
 	private float chargeSpeed;
 	private bool fired;
+#if UNITY_WEBPLAYER || UNITY_STANDALONE
+	private string fireButton;
+#endif
 
 
 	public void Start() => this.chargeSpeed = (this.maxLaunchForce - this.minLaunchForce) / this.maxChargeTime;
@@ -27,9 +29,6 @@ public class TankShooting : NetworkBehaviour
 		this.currentLaunchForce = this.minLaunchForce;
 		this.aimSlider.value = this.minLaunchForce;
 	}
-
-
-	public override void OnStartLocalPlayer() => this.fireButton = "Fire" + this.playerNumber;
 
 
 	public void Update() {
@@ -106,8 +105,8 @@ public class TankShooting : NetworkBehaviour
 	}
 
 	private Touch? GetTouch() {
-		for (int i = 0; i < Input.touchCount; ++i) {
-			Touch touch = Input.GetTouch(i);
+		for (int i = 0; i < UnityEngine.Input.touchCount; ++i) {
+			Touch touch = UnityEngine.Input.GetTouch(i);
 
 			if (touch.position.x > Screen.width / 2)
 				return touch;
@@ -116,6 +115,8 @@ public class TankShooting : NetworkBehaviour
 		return null;
 	}
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
+	public override void OnStartLocalPlayer() => this.fireButton = "Fire" + this.playerNumber;
+
 	private bool InputBeginShot() => UnityEngine.Input.GetButtonDown(this.fireButton);
 
 	private bool InputChargingShot() => UnityEngine.Input.GetButton(this.fireButton);

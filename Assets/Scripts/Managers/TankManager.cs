@@ -10,19 +10,10 @@ public class TankManager : NetworkBehaviour
 	[HideInInspector] public int wins;
 
 
-	private GameObject canvasGameObject;
-
-	private TankMovement movement;
-	private TankShooting shooting;
+	GameObject canvasGameObject;
 
 
-	public void Awake() {
-		this.shooting = this.GetComponent<TankShooting>();
-		this.canvasGameObject = this.gameObject.GetComponentInChildren<Canvas>().gameObject;
-		
-		this.movement = this.GetComponent<TankMovement>();
-		this.movement.Awake();
-	}
+	public void Awake() => this.canvasGameObject = this.gameObject.GetComponentInChildren<Canvas>().gameObject;
 
 
 	public override void OnStartLocalPlayer() => this.tag = "Player";
@@ -35,9 +26,6 @@ public class TankManager : NetworkBehaviour
 
 
 	public void Setup() {
-		this.movement.playerNumber = this.playerNumber;
-		this.shooting.playerNumber = this.playerNumber;
-
 		this.playerColor = this.playerNumber % 2 == 0 ? Color.green : Color.red;
 
 		this.coloredPlayerText = "<color=#" + ColorUtility.ToHtmlStringRGB(this.playerColor) + ">PLAYER " + this.playerNumber + "</color>";

@@ -3,29 +3,28 @@ using UnityEngine.Networking;
 
 public class TankMovement : NetworkBehaviour
 {
-	public readonly float speedPerFrame = 12f;
-
-	public uint playerNumber = 1;
 	public EngineAudio engineAudio;
-	
-	private Rigidbody rigidbody;
+
+	readonly float speedPerFrame;
+
+	Rigidbody rigidbody;
 #if UNITY_ANDROID || UNITY_IOS
-	private Vector2 touchStartPosition;
-	private Vector2 movementDirection;
+	Vector2 touchStartPosition;
+	Vector2 movementDirection;
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-	private Input movementInput;
-	private Input turnInput;
+	Input movementInput;
+	Input turnInput;
 #endif
 
 
-	public void Awake() {
-		this.rigidbody = this.GetComponent<Rigidbody>();
-
-#if UNITY_WEBPLAYER || UNITY_STANDALONE
-		this.movementInput = new Input("Vertical" + this.playerNumber, 1f);
-		this.turnInput = new Input("Horizontal" + this.playerNumber, 180f);
-#endif
+	public TankMovement() {
+		this.speedPerFrame = 12f;
+		this.movementInput = new Input(axisName: "Vertical", maxValue: 1f);
+		this.turnInput = new Input(axisName: "Horizontal", maxValue: 180f);
 	}
+
+
+	public void Awake() => this.rigidbody = this.GetComponent<Rigidbody>();
 
 
 	public void OnEnable() {
@@ -48,7 +47,7 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private void UpdateEngineAudio() {
+	void UpdateEngineAudio() {
 		// Play the correct audio clip based on whether or not the tank is moving and what audio is currently playing.
 
 		if (this.IsMoving()) {
@@ -65,7 +64,7 @@ public class TankMovement : NetworkBehaviour
 
 
 #if UNITY_ANDROID || UNITY_IOS
-	private void FixedUpdate() {
+	void FixedUpdate() {
 		if (this.IsMoving()) {
 			float distancePerFrame = this.speedPerFrame * Time.deltaTime;
 			Vector3 movement = new Vector3(this.movementDirection.x, 0f, this.movementDirection.y) * distancePerFrame;
@@ -77,13 +76,13 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private void ResetInput() {
+	void ResetInput() {
 		this.touchStartPosition = Vector2.zero;
 		this.movementDirection = Vector2.zero;
 	}
 
 
-	private void GetInput() {
+	void GetInput() {
 		Touch? touchInput = this.GetTouch();
 
 		if (touchInput.HasValue) {
@@ -106,7 +105,7 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private Touch? GetTouch() {
+	Touch? GetTouch() {
 		for (int i = 0; i < UnityEngine.Input.touchCount; ++i) {
 			Touch touch = UnityEngine.Input.GetTouch(i);
 
@@ -118,7 +117,7 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private bool IsMoving() => this.movementDirection.magnitude > 0f;
+	bool IsMoving() => this.movementDirection.magnitude > 0f;
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
 	public void FixedUpdate() {
 		this.Move();
@@ -126,19 +125,19 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private void ResetInput() {
+	void ResetInput() {
 		this.movementInput.value = 0f;
 		this.turnInput.value = 0f;
 	}
 
 
-	private void GetInput() {
+	void GetInput() {
 		this.movementInput.value = UnityEngine.Input.GetAxis(this.movementInput.axisName);
 		this.turnInput.value = UnityEngine.Input.GetAxis(this.turnInput.axisName);
 	}
 
 
-	private void Move() {
+	void Move() {
 		// Adjust the position of the tank based on the player's input.
 
 		float speed = Mathf.Min(this.movementInput.value, this.movementInput.maxValue);
@@ -149,7 +148,7 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private void Turn() {
+	void Turn() {
 		// Adjust the rotation of the tank based on the player's input.
 	
 		float rotationPerFrame = this.turnInput.value * this.turnInput.maxValue * Time.deltaTime;
@@ -159,6 +158,6 @@ public class TankMovement : NetworkBehaviour
 	}
 
 
-	private bool IsMoving() => Mathf.Abs(this.movementInput.value) > .1f || Mathf.Abs(this.turnInput.value) > .1f;
+	bool IsMoving() => Mathf.Abs(this.movementInput.value) > .1f || Mathf.Abs(this.turnInput.value) > .1f;
 #endif
 }

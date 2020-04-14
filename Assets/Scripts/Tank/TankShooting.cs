@@ -4,30 +4,32 @@ using UnityEngine.UI;
 
 public class TankShooting : NetworkBehaviour
 {
-	public uint playerNumber = 1;
-	public float minLaunchForce = 15f;
-	public float maxLaunchForce = 30f;
-	public float maxChargeTime = 0.75f;
-
 	public Rigidbody shell;
-	public Transform fireTransform;
-	public Slider aimSlider;
+	public Transform shellSpawnPoint;
+	public Slider aimUI;
 	public ShootingAudio shootingAudio;
 
-	private float currentLaunchForce;
-	private float chargeSpeed;
-	private bool fired;
+	readonly float chargeSpeed;
+	readonly float maxChargeTime;
 #if UNITY_WEBPLAYER || UNITY_STANDALONE
-	private string fireButton;
+	readonly string fireButton;
 #endif
 
+	ClampedValue<float> launchForce;
+	bool fired;
 
-	public void Start() => this.chargeSpeed = (this.maxLaunchForce - this.minLaunchForce) / this.maxChargeTime;
+	 
+	public TankShooting() {
+		this.launchForce = new ClampedValue<float>(15f, 30f);
+		this.maxChargeTime = .75f;
+		this.fireButton = "Fire";
+		this.chargeSpeed = (this.launchForce.max - this.launchForce.min) / this.maxChargeTime;
+	}
 
 
 	public void OnEnable() {
-		this.currentLaunchForce = this.minLaunchForce;
-		this.aimSlider.value = this.minLaunchForce;
+		this.launchForce.Value = this.launchForce.min;
+		this.aimUI.value = this.launchForce.min;
 	}
 
 
@@ -35,21 +37,21 @@ public class TankShooting : NetworkBehaviour
 		// Track the current state of the fire button and make decisions based on the current launch force.
 
 		if (this.isLocalPlayer) {
-			this.aimSlider.value = this.minLaunchForce;
+			this.aimUI.value = this.launchForce.min;
 
-			if (this.currentLaunchForce >= this.maxLaunchForce && !this.fired) {
-				this.currentLaunchForce = this.maxLaunchForce;
+			if (this.launchForce.Value >= this.launchForce.max && !this.fired) {
+				this.launchForce.Value = this.launchForce.max;
 				this.CmdFire();
 			}
 			else if (this.InputBeginShot()) {
 				this.fired = false;
-				this.currentLaunchForce = this.minLaunchForce;
+				this.launchForce.Value = this.launchForce.min;
 
 				this.shootingAudio.ChangeCurrentSound(this.shootingAudio.shotCharging);
 			}
 			else if (this.InputChargingShot() && !this.fired) {
-				this.currentLaunchForce += this.chargeSpeed * Time.deltaTime;
-				this.aimSlider.value = this.currentLaunchForce;
+				this.launchForce.Value += this.chargeSpeed * Time.deltaTime;
+				this.aimUI.value = this.launchForce.Value;
 			}
 			else if (this.InputEndShot() && !this.fired) {
 				this.CmdFire();
@@ -58,30 +60,30 @@ public class TankShooting : NetworkBehaviour
 	}
 
 
-	private void Fire() {
+	void Fire() {
 		// Instantiate and launch the shell.
 
 		this.fired = true;
 
-		Rigidbody shellInstance = Instantiate(this.shell, this.fireTransform.position, this.fireTransform.rotation);
-		shellInstance.velocity = this.currentLaunchForce * this.fireTransform.forward;
+		Rigidbody shellInstance = Instantiate(this.shell, this.shellSpawnPoint.position, this.shellSpawnPoint.rotation);
+		shellInstance.velocity = this.launchForce.Value * this.shellSpawnPoint.forward;
 
 		this.shootingAudio.ChangeCurrentSound(this.shootingAudio.shotFiring);
 
-		this.currentLaunchForce = this.minLaunchForce;
+		this.launchForce.Value = this.launchForce.min;
 	}
 
 
 	[Command]
-	private void CmdFire() => this.RpcFire();
+	void CmdFire() => this.RpcFire();
 
 
 	[ClientRpc]
-	private void RpcFire() => this.Fire();
+	void RpcFire() => this.Fire();
 
 
 #if UNITY_ANDROID || UNITY_IOS
-	private bool InputBeginShot() {
+	bool InputBeginShot() {
 		Touch? touch = this.GetTouch();
 
 		return !touch.HasValue ? false : 
@@ -89,7 +91,7 @@ public class TankShooting : NetworkBehaviour
 	}
 
 
-	private bool InputChargingShot() {
+	bool InputChargingShot() {
 		Touch? touch = this.GetTouch();
 
 		return !touch.HasValue ? false :
@@ -97,14 +99,14 @@ public class TankShooting : NetworkBehaviour
 	}
 
 
-	private bool InputEndShot() {
+	bool InputEndShot() {
 		Touch? touch = this.GetTouch();
 
 		return !touch.HasValue ? false :
 			touch.Value.phase == TouchPhase.Ended || touch.Value.phase == TouchPhase.Canceled;
 	}
 
-	private Touch? GetTouch() {
+	Touch? GetTouch() {
 		for (int i = 0; i < UnityEngine.Input.touchCount; ++i) {
 			Touch touch = UnityEngine.Input.GetTouch(i);
 
@@ -115,13 +117,10 @@ public class TankShooting : NetworkBehaviour
 		return null;
 	}
 #elif UNITY_WEBPLAYER || UNITY_STANDALONE
-	public override void OnStartLocalPlayer() => this.fireButton = "Fire" + this.playerNumber;
+	bool InputBeginShot() => UnityEngine.Input.GetButtonDown(this.fireButton);
 
-	private bool InputBeginShot() => UnityEngine.Input.GetButtonDown(this.fireButton);
+	bool InputChargingShot() => UnityEngine.Input.GetButton(this.fireButton);
 
-	private bool InputChargingShot() => UnityEngine.Input.GetButton(this.fireButton);
-
-	private bool InputEndShot() => UnityEngine.Input.GetButtonUp(this.fireButton);
+	bool InputEndShot() => UnityEngine.Input.GetButtonUp(this.fireButton);
 #endif
-
 }

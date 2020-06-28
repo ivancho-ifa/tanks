@@ -36,6 +36,7 @@ public class ShellExplosion : MonoBehaviour
 	}
 
 
+	[System.Obsolete]
 	private void OnTriggerEnter(Collider _) {
 		// Find all the tanks in an area around the shell and damage them.
 

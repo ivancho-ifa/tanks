@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
+[System.Obsolete]
 public class TankManager : NetworkBehaviour
 {
 	[SyncVar] [HideInInspector] public uint playerNumber;

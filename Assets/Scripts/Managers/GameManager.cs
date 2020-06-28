@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
+[System.Obsolete]
 public class GameManager : NetworkBehaviour
 {
 	public int numRoundsToWin = 5;
@@ -160,7 +162,7 @@ public class GameManager : NetworkBehaviour
 	private void ResetAllTanks() {
 		IEnumerator spawnPoints = this.GetAllSpawnPoints();
 		foreach (TankManager tank in this.GetAllTanks()) {
-			spawnPoints.MoveNext();
+			_ = spawnPoints.MoveNext();
 			var spawnPoint = spawnPoints.Current as Transform;
 			tank.transform.position = spawnPoint.position;
 

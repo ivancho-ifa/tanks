@@ -2,6 +2,8 @@
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+
+[System.Obsolete]
 public class TankHealth : NetworkBehaviour
 {
 	private readonly float startingHealth = 100f;

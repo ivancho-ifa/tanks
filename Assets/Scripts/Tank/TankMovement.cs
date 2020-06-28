@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
+
+[System.Obsolete]
 public class TankMovement : NetworkBehaviour
 {
 	public EngineAudio engineAudio;
 
 	readonly float speedPerFrame;
-
-	Rigidbody rigidbody;
+	new Rigidbody rigidbody;
 #if UNITY_ANDROID || UNITY_IOS
 	Vector2 touchStartPosition;
 	Vector2 movementDirection;

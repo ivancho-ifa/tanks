@@ -2,6 +2,8 @@
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+
+[System.Obsolete]
 public class TankShooting : NetworkBehaviour
 {
 	public Rigidbody shell;

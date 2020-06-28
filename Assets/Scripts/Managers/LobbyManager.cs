@@ -18,7 +18,7 @@ public class LobbyManager : NetworkLobbyManager
 	public override void OnLobbyClientDisconnect(NetworkConnection conn) {
 		Debug.Log("LobbyManager.OnLobbyClientDisconnect");
 
-		base.OnLobbyClientDisconnect(conn);
+		base.OnLobbyClientDisconnect(conn); 
 	}
 
 	public override void OnLobbyClientEnter() {

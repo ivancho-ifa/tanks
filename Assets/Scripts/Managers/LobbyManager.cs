@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.Match;
 
 [System.Obsolete]
 public class LobbyManager : NetworkLobbyManager

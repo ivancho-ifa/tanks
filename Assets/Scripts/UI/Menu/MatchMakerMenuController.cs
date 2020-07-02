@@ -8,8 +8,6 @@ public class MatchMakerMenuController : Menu {
 
 
 	void Awake() {
-		Debug.Log("Awake");
-
 		this.createMatchMenu.SetActive(false);
 		this.joinMatchMenu.SetActive(false);
 		this.matchMakerMenu.SetActive(false);

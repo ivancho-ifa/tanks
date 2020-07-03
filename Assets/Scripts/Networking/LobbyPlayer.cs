@@ -11,6 +11,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
 	[SyncVar] bool isOn;
 	private Toggle playerReady;
 	private LobbyManager lobbyManager;
+	private Text playerReadyLabel;
 
 
 	private void Awake() {
@@ -20,8 +21,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
 		playerReady.isOn = isOn = false;
 		playerReady.onValueChanged.AddListener(TogglePlayerReady);
 
-		Text label = playerReady.GetComponentInChildren<Text>();
-		label.text = string.Format("Player {0} ready", this.netId);
+		playerReadyLabel = playerReady.GetComponentInChildren<Text>();
 	}
 
 	private void Update() {
@@ -29,6 +29,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
 			playerReady.interactable = false;
 
 		playerReady.isOn = this.isOn;
+		playerReadyLabel.text = string.Format("Player {0} ready", this.netId.Value);
 	}
 
 

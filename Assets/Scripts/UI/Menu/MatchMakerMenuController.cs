@@ -7,7 +7,9 @@ public class MatchMakerMenuController : Menu {
 	public GameObject matchMakerMenu;
 
 
-	void Awake() {
+	protected override void Awake() {
+		base.Awake();
+
 		this.createMatchMenu.SetActive(false);
 		this.joinMatchMenu.SetActive(false);
 		this.matchMakerMenu.SetActive(false);
@@ -17,13 +19,13 @@ public class MatchMakerMenuController : Menu {
 
 
 	public void CreateMatchButton() {
-		NetworkManager.singleton.StartMatchMaker();
+		lobbyManager.StartMatchMaker();
 		this.CurrentMenu = this.createMatchMenu;
 	}
 
 
 	public void JoinMatchButton() {
-		NetworkManager.singleton.StartMatchMaker();
+		lobbyManager.StartMatchMaker();
 		this.CurrentMenu = this.joinMatchMenu;
 	}
 }

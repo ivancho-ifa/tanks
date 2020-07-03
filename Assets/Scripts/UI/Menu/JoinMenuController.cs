@@ -6,27 +6,33 @@ using UnityEngine.UI;
 
 
 [System.Obsolete]
-public class JoinMenuController : MonoBehaviour
+public class JoinMenuController : Menu
 {
-	private NetworkManager manager;
-
 	public Button joinMatchButtonPrefab;
 	public Dictionary<string, Button> joinMatchButtons = new Dictionary<string, Button>();
 
-	 
-	private void Awake() {
-		this.manager = NetworkManager.singleton;
+	public GameObject joinMatchMenu;
+	public GameObject matchGuestMenu;
+
+
+	protected override void Awake() {
+		base.Awake();
+
+		this.joinMatchMenu.SetActive(false);
+		this.matchGuestMenu.SetActive(false);
+
+		this.CurrentMenu = this.joinMatchMenu;
 	}
 
 	private void Update() {
-		_ = this.manager.matchMaker.ListMatches(0, 20, "", filterOutPrivateMatchesFromResults: false, 0, 0, this.manager.OnMatchList);
+		_ = this.lobbyManager.matchMaker.ListMatches(0, 20, "", filterOutPrivateMatchesFromResults: false, 0, 0, this.lobbyManager.OnMatchList);
 		DisplayMatches();
 	}
 
 	public void DisplayMatches() {
 		var destroyedMatchesKeys = new List<string>();
 		foreach (var button in joinMatchButtons)
-			if (!manager.matches.Exists((match) => button.Key == match.name))
+			if (!lobbyManager.matches.Exists((match) => button.Key == match.name))
 				destroyedMatchesKeys.Add(button.Key);
 
 		foreach (var key in destroyedMatchesKeys) {
@@ -34,7 +40,7 @@ public class JoinMenuController : MonoBehaviour
 			joinMatchButtons.Remove(key);
 		}
 
-		foreach (MatchInfoSnapshot match in manager.matches)
+		foreach (MatchInfoSnapshot match in lobbyManager.matches)
 			if (!this.joinMatchButtons.ContainsKey(match.name))
 				this.DisplayMatch(match);
 	}
@@ -50,7 +56,9 @@ public class JoinMenuController : MonoBehaviour
 
 
 	public void JoinButton(MatchInfoSnapshot match) {
-		this.manager.matchName = match.name;
-		_ = this.manager.matchMaker.JoinMatch(match.networkId, "", "", "", 0, 0, this.manager.OnMatchJoined);
+		this.lobbyManager.matchName = match.name;
+		_ = this.lobbyManager.matchMaker.JoinMatch(match.networkId, "", "", "", 0, 0, this.lobbyManager.OnMatchJoined);
+
+		this.CurrentMenu = this.matchGuestMenu;
 	}
 }

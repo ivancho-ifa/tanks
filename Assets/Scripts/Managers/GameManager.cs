@@ -99,7 +99,7 @@ public class GameManager : NetworkBehaviour
 
 	private IEnumerator RoundEnding() {
 		this.DisableTankControl();
-		
+
 		this.roundWinner = this.GetRoundWinner();
 		if (this.roundWinner != null)
 			++this.roundWinner.wins;

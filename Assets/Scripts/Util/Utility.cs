@@ -7,8 +7,7 @@ public struct ClampedValue<Type> where Type : IComparable
 	public readonly Type max;
 
 	private Type value;
-	public Type Value
-	{
+	public Type Value {
 		get => this.value;
 		set => this.value = Clamp(value, this.min, this.max);
 	}

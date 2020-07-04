@@ -30,7 +30,7 @@ public class TankMovement : NetworkBehaviour
 
 	public void OnEnable() {
 		this.rigidbody.isKinematic = false;
-		
+
 		this.ResetInput();
 	}
 
@@ -151,7 +151,7 @@ public class TankMovement : NetworkBehaviour
 
 	void Turn() {
 		// Adjust the rotation of the tank based on the player's input.
-	
+
 		float rotationPerFrame = this.turnInput.value * this.turnInput.maxValue * Time.deltaTime;
 		var turn = Quaternion.Euler(0f, rotationPerFrame, 0f);
 

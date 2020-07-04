@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class CreateMenuController : Menu {
+public class CreateMenuController : Menu
+{
 	private InputField matchName;
 
 	public GameObject createMatchMenu;

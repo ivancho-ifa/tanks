@@ -20,7 +20,7 @@ public class TankShooting : NetworkBehaviour
 	ClampedValue<float> launchForce;
 	bool fired;
 
-	 
+
 	public TankShooting() {
 		this.launchForce = new ClampedValue<float>(15f, 30f);
 		this.maxChargeTime = .75f;

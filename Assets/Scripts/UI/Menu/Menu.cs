@@ -19,7 +19,7 @@ public class Menu : MonoBehaviour
 
 			this.currentMenu = value;
 			this.currentMenu.SetActive(true);
-			
+
 			this.lobbyManager.currentMenu = this.currentMenu;
 		}
 	}

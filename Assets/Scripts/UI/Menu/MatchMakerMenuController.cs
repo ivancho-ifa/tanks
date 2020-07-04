@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.Networking;
 
-public class MatchMakerMenuController : Menu {
+public class MatchMakerMenuController : Menu
+{
 	public GameObject createMatchMenu;
 	public GameObject joinMatchMenu;
 	public GameObject matchMakerMenu;

@@ -18,7 +18,7 @@ public class PerksManager : NetworkBehaviour
 		if (this.isServer) {
 			int randomPerkId = UnityEngine.Random.Range(0, this.perkPrefabs.Length - 1);
 			GameObject perk = this.Spawn(this.perkPrefabs[randomPerkId]);
-			
+
 			_ = this.StartCoroutine(this.DestroyPerk(perk, 5f));
 		}
 	}

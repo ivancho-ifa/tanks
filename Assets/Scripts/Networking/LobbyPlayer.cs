@@ -16,7 +16,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
 
 	private void Awake() {
 		lobbyManager = NetworkManager.singleton as LobbyManager;
-		
+
 		playerReady = Instantiate(playerReadyPrefab, parent: this.lobbyManager.currentMenu.transform);
 		playerReady.isOn = isOn = false;
 		playerReady.onValueChanged.AddListener(TogglePlayerReady);

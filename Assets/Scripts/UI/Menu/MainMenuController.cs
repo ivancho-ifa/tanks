@@ -3,5 +3,5 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    public void Play() => SceneManager.LoadScene("Match Maker Scene");
+	public void Play() => SceneManager.LoadScene("Match Maker Scene");
 }

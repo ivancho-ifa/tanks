@@ -51,6 +51,12 @@ public class TankHealth : NetworkBehaviour
 	}
 
 
+	public void RefillHealth() {
+		if (this.isServer)
+			this.health = this.startingHealth;
+	}
+
+
 	private float GetHealthPercentage() {
 		// return (this.slider.value - this.slider.minValue) / (this.slider.maxValue - this.slider.minValue);
 
